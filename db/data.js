@@ -1,4 +1,10 @@
-const persons=[
+// DataBase 
+
+
+
+
+
+/*const persons=[
     {id:0,name:'John'},
     {id:1,name:'Jane'}
 ];
@@ -21,4 +27,4 @@ function removePerson(id) {
 
 function updatePerson(person) {
     persons = persons.map(p => p.id === +person.id ? person : p);
-}
+}*/
