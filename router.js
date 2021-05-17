@@ -21,9 +21,8 @@ router
         con.query("SELECT * FROM User where userFirstName = 'Mickael'", function (err, result) {
             if (err) {throw err;}
             console.log(result);
+            res.json(result);
             });
         });
-
-       res.json("Hello world!!");
    });
    
