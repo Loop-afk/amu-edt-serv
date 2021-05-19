@@ -1,3 +1,4 @@
+const { SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS } = require("constants");
 const { listenerCount } = require("events");
 const express = require("express");
 const router = express.Router();
@@ -36,9 +37,12 @@ router
     .get("/", (req, res) => {
         let from = req.query.from
         let to = req.query.to
+        
+        //if (from = 'undefined') { from = new Date(YYYY-MM-DD)}
+        //if (to = 'undefined') { to = new Date(YYYY-MM-DD)}
         console.log(from, to)
         con.connect(function(err) {
-        if (err) {throw err;}
+        if (err) {throw err;}   
         //console.log("Connecté à la base de données MySQL!");
         con.query(`SELECT EXTRACT(YEAR FROM courseDate) AS year, EXTRACT(MONTH FROM courseDate) AS month, EXTRACT(DAY FROM courseDate) as day,
                     C.gradeId, G.gradeName, 
@@ -52,7 +56,86 @@ router
                     WHERE courseDate <= '${to}' AND courseDate >=  '${from}'`, function (err, result) {
             if (err) {throw err;}
             //console.log(result);
-            res.json(result);
+            let length = result.length
+            res.json([
+                        {
+                          "date": {
+                            "day": result[0].day,
+                            "month": result[0].month,
+                            "year": result[0].year
+                          },
+                          "groups": [
+                            {
+                              "id": result[0].groupId,
+                              "value": result[0].groupName
+                            }
+                          ],
+                          "start": {
+                            "hours": result[0].hourStart,
+                            "minutes": result[0].minuteStart
+                          },
+                          "end": {
+                            "hours": result[0].hourEnd,
+                            "minutes": result[0].minuteEnd
+                          },
+                          "ue": {
+                              "id": result[0].subjectId,
+                              "value": result[0].subjectName
+                          },
+                          "teacher": {
+                            "id": result[0].teacherId,
+                            "value": result[0].teacherFirstName + result[0].teacherLastName
+                          },
+                          "place": {
+                            "room": {
+                              "id": result[0].roomId,
+                              "value": result[0].roomName
+                            },
+                            "campus": {
+                              "id": result[0].campusId,
+                              "value": result[0].campusName
+                            }
+                          }
+                        },
+                        {
+                              "date": {
+                                "day": result[1].day,
+                                "month": result[1].month,
+                                "year": result[1].year
+                              },
+                              "groups": [
+                                {
+                                  "id": result[1].groupId,
+                                  "value": result[1].groupName
+                                }
+                              ],
+                              "start": {
+                                "hours": result[1].hourStart,
+                                "minutes": result[1].minuteStart
+                              },
+                              "end": {
+                                "hours": result[1].hourEnd,
+                                "minutes": result[1].minuteEnd
+                              },
+                              "ue": {
+                                  "id": result[1].subjectId,
+                                  "value": result[1].subjectName
+                              },
+                              "teacher": {
+                                "id": result[1].teacherId,
+                                "value": result[1].teacherFirstName + result[1].teacherLastName
+                              },
+                              "place": {
+                                "room": {
+                                  "id": result[1].roomId,
+                                  "value": result[1].roomName
+                                },
+                                "campus": {
+                                  "id": result[1].campusId,
+                                  "value": result[1].campusName
+                                }
+                              }
+                            }]);
         });
         });
         
@@ -62,10 +145,8 @@ router
    .get("/", (req, res) => {
         let from = req.query.from
         let fromSplit = from.split('-')
-        console.log(fromSplit)
         let to = req.query.to
         let toSplit = to.split('-')
-        console.log(toSplit)
         let schedule = [
                     {
                       "date": {
@@ -162,7 +243,9 @@ router
                 return course.date.day >= fromSplit[2] && course.date.day <= toSplit[2] && course.date.month >= fromSplit[1] && course.date.month <= toSplit[1] && course.date.year >= fromSplit[0] && course.date.year <= toSplit[0];
                       });
         res.json(inFromTo);
-   });*/
+   });
+   
+   */
    
 
 
