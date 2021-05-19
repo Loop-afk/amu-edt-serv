@@ -56,86 +56,50 @@ router
                     WHERE courseDate <= '${to}' AND courseDate >=  '${from}'`, function (err, result) {
             if (err) {throw err;}
             //console.log(result);
-            let length = result.length
-            res.json([
+            let data = []
+            result.forEach(element => data.push(
                         {
                           "date": {
-                            "day": result[0].day,
-                            "month": result[0].month,
-                            "year": result[0].year
+                            "day": element.day,
+                            "month":  element.month,
+                            "year":  element.year
                           },
                           "groups": [
                             {
-                              "id": result[0].groupId,
-                              "value": result[0].groupName
+                              "id":  element.groupId,
+                              "value":  element.groupName
                             }
                           ],
                           "start": {
-                            "hours": result[0].hourStart,
-                            "minutes": result[0].minuteStart
+                            "hours":  element.hourStart,
+                            "minutes":  element.minuteStart
                           },
                           "end": {
-                            "hours": result[0].hourEnd,
-                            "minutes": result[0].minuteEnd
+                            "hours":  element.hourEnd,
+                            "minutes": element.minuteEnd
                           },
                           "ue": {
-                              "id": result[0].subjectId,
-                              "value": result[0].subjectName
+                              "id":  element.subjectId,
+                              "value":  element.subjectName
                           },
                           "teacher": {
-                            "id": result[0].teacherId,
-                            "value": result[0].teacherFirstName + result[0].teacherLastName
+                            "id":  element.teacherId,
+                            "value":  element.teacherFirstName +  element.teacherLastName
                           },
                           "place": {
                             "room": {
-                              "id": result[0].roomId,
-                              "value": result[0].roomName
+                              "id":  element.roomId,
+                              "value":  element.roomName
                             },
                             "campus": {
-                              "id": result[0].campusId,
-                              "value": result[0].campusName
+                              "id":  element.campusId,
+                              "value":  element.campusName
                             }
                           }
-                        },
-                        {
-                              "date": {
-                                "day": result[1].day,
-                                "month": result[1].month,
-                                "year": result[1].year
-                              },
-                              "groups": [
-                                {
-                                  "id": result[1].groupId,
-                                  "value": result[1].groupName
-                                }
-                              ],
-                              "start": {
-                                "hours": result[1].hourStart,
-                                "minutes": result[1].minuteStart
-                              },
-                              "end": {
-                                "hours": result[1].hourEnd,
-                                "minutes": result[1].minuteEnd
-                              },
-                              "ue": {
-                                  "id": result[1].subjectId,
-                                  "value": result[1].subjectName
-                              },
-                              "teacher": {
-                                "id": result[1].teacherId,
-                                "value": result[1].teacherFirstName + result[1].teacherLastName
-                              },
-                              "place": {
-                                "room": {
-                                  "id": result[1].roomId,
-                                  "value": result[1].roomName
-                                },
-                                "campus": {
-                                  "id": result[1].campusId,
-                                  "value": result[1].campusName
-                                }
-                              }
-                            }]);
+                        }
+                        ));
+                res.json(data);
+
         });
         });
         
