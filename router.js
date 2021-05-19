@@ -64,12 +64,12 @@ router
                             "month":  element.month,
                             "year":  element.year
                           },
-                          "groups": [
+                          "groups": 
                             {
-                              "id":  element.groupId,
-                              "value":  element.groupName
+                              "id":  element.gradeId,
+                              "value":  element.gradeName
                             }
-                          ],
+                          ,
                           "start": {
                             "hours":  element.hourStart,
                             "minutes":  element.minuteStart
