@@ -49,7 +49,7 @@ router
                     EXTRACT(HOUR FROM courseStart) as hourStart, EXTRACT(MINUTE FROM courseStart) as minuteStart,
                     EXTRACT(HOUR FROM courseEnd) as hourEnd, EXTRACT(MINUTE FROM courseEnd) as minuteEnd,
                     C.subjectId, S.subjectName,
-                    C.teacherId, U.userFirstName as teacherfirstName, U.userLastName as teacherLastName,
+                    C.teacherId, U.userFirstName as teacherFirstName, U.userLastName as teacherLastName,
                     C.roomId, R.roomName, Ca.campusId, Ca.campusName
                     FROM Course C INNER JOIN Grade G on C.gradeId = G.gradeId INNER JOIN Subject S on C.subjectId = S.subjectId
                     INNER JOIN User U on C.teacherId = U.userId INNER JOIN Room R on C.roomId = R.roomId INNER JOIN Campus Ca on R.campusId = Ca.campusId
@@ -64,12 +64,12 @@ router
                             "month":  element.month,
                             "year":  element.year
                           },
-                          "groups": 
+                          "groups": [
                             {
                               "id":  element.gradeId,
                               "value":  element.gradeName
                             }
-                          ,
+                          ],
                           "start": {
                             "hours":  element.hourStart,
                             "minutes":  element.minuteStart
@@ -79,12 +79,14 @@ router
                             "minutes": element.minuteEnd
                           },
                           "ue": {
+                            "field": {
                               "id":  element.subjectId,
                               "value":  element.subjectName
+                            }
                           },
                           "teacher": {
                             "id":  element.teacherId,
-                            "value":  element.teacherFirstName +  element.teacherLastName
+                            "value":  element.teacherFirstName +' ' + element.teacherLastName
                           },
                           "place": {
                             "room": {
