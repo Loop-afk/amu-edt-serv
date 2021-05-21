@@ -38,8 +38,8 @@ router
         let from = req.query.from
         let to = req.query.to
         
-        //if (from = 'undefined') { from = new Date(YYYY-MM-DD)}
-        //if (to = 'undefined') { to = new Date(YYYY-MM-DD)}
+        if (from == undefined) { from = "2020-01-01" }
+        if (to == undefined) { to = "2022-12-31" }
         console.log(from, to)
         con.connect(function(err) {
         if (err) {throw err;}   
@@ -54,7 +54,7 @@ router
                     FROM Course C INNER JOIN Grade G on C.gradeId = G.gradeId INNER JOIN Subject S on C.subjectId = S.subjectId
                     INNER JOIN User U on C.teacherId = U.userId INNER JOIN Room R on C.roomId = R.roomId INNER JOIN Campus Ca on R.campusId = Ca.campusId
                     WHERE courseDate <= '${to}' AND courseDate >=  '${from}'`, function (err, result) {
-            if (err) {throw err;}
+            if (err) {throw err;} 
             //console.log(result);
             let data = []
             result.forEach(element => data.push(
@@ -101,11 +101,35 @@ router
                         }
                         ));
                 res.json(data);
-
         });
         });
         
    });
+
+   router
+   .get("/fghfhfgsxcv", (req, res) => {
+    con.connect(function(err) {
+        if (err) {throw err;}
+        let tab = []
+        tab.forEach(function(element){ if(0 == 0){
+            
+            con.query( // tab = tableau fait a partir des données qu'on reçoit
+            `INSERT INTO Course (courseDate, gradeId, courseStart, courseEnd, subjectId, teacherId, roomId)
+            VALUES ('${element.date.year}'-'${element.date.month}'-'${element.date.day}', 
+                    '${element.groups[0].id}',
+                    '${element.start.hours}':'${element.start.minutes}',
+                    '${element.end.hours}':'${element.end.minutes}',
+                    '${element.ue.id}',
+                    '${element.teacher.id}',
+                    '${element.place.room.id}')`, function (err, result) {
+            if (err) {throw err;}                 
+            })
+        }
+        else{throw Error("Entrée incorrecte, veuillez vérifier vos valeurs")}
+    });
+    });
+});
+    
 
    /*router
    .get("/", (req, res) => {
