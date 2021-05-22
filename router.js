@@ -34,7 +34,12 @@ module.exports = router;
 //    /?from=2021-04-10&to=2021-04-20
 
 router
-    .get("/", (req, res) => {
+   .get("/", (req, res) => {
+       res.json("Hello world!!");
+   });
+
+router
+    .get("/test2", (req, res) => {
         let from = req.query.from
         let to = req.query.to
         
@@ -106,29 +111,101 @@ router
         
    });
 
+   //http://localhost:8000/nouveau/cours/?ueName=1&date=2021-05-24&start=07:45&occurences=7&duration=14&groups=1&teacher=1&room=1&campus=1
+   //http://localhost:8000/nouveau/cours/?ueName=2&date=2021-05-25&start=07:45&end=10:00&groups=1&teacher=1&room=1&campus=1
+
    router
-   .get("/fghfhfgsxcv", (req, res) => {
+   .get("/nouveau/cours/", (req, res) => {
+    let subjectId = req.query.ueName
+    let courseDate = req.query.date
+    let courseStart = req.query.start
+    let courseEnd = req.query.end
+    let gradeId = req.query.groups
+    let teacherId = req.query.teacher
+    let roomId = req.query.room
+    let occurences = req.query.occurences
+    let duration = req.query.duration
+
+    if (occurences == undefined) { occurences = 1 }
+    else{occurences = parseInt(occurences)}
+
+    if (duration == undefined) { duration = 1 }
+    else {duration = parseInt(duration)}
+
+    dateCourseDate = new Date(courseDate)
+
     con.connect(function(err) {
         if (err) {throw err;}
-        let tab = []
-        tab.forEach(function(element){ if(0 == 0){
+        if(dateCourseDate < Date.now()){throw Error("Date antérieure, veuillez vérifier vos valeurs")}
+        
+        con.query(`SELECT * from Grade where gradeId = '${gradeId}' `, function(error, result){
+            if (err) {
+                throw err;}
+            if(result == 0){
+                
+                return res.status(400).json({message: 'unauthorized'})
+                //res.json("Groupe inexistant, veuillez vérifier vos valeurs")
+                //throw Error("Groupe inexistant, veuillez vérifier vos valeurs")
+            }
+        })
+        
+
+        if(Date.parse(`01/01/2011 '${courseStart} `) > Date.parse(`01/01/2011 '${courseEnd}'`)){throw Error("Le cours ne peut pas finir avant d'avoir commencé, veuillez vérifier vos valeurs")}
+    
+        splitStart = courseStart.split(":")
+        splitEnd = courseEnd.split(":")
+
+        if(parseInt(splitStart[0]) < 0 || parseInt(splitStart[0]) > 24 || parseInt(splitEnd[0]) < 0 || parseInt(splitEnd[0]) > 24){throw Error("Entrée incorrecte, veuillez vérifier vos valeurs")}
+
+        con.query(`SELECT * from Subject where subjectId = '${subjectId}' `, function(error, result){
+            if (err) {
+                throw err;}
+            if(result == 0){
+                res.json("UE inexistante, veuillez vérifier vos valeurs")
+                throw Error("UE inexistante, veuillez vérifier vos valeurs")
+            }
+        })
+
+
+        con.query(`SELECT * from User where userId = '${teacherId}' `, function(error, result){
+            if (err) {throw err;}
+            if(result == 0){
+                res.json("Professeur inexistant, veuillez vérifier vos valeurs")
+                throw Error("Professeur inexistant, veuillez vérifier vos valeurs")
+            }
+        })
+
+        con.query(`SELECT * from Room where roomId = '${roomId}' `, function(error, result){
+            if (err) {throw err;}
+            if(result == 0){
+                res.json("Salle inexistante, veuillez vérifier vos valeurs")
+                throw Error("Salle inexistante, veuillez vérifier vos valeurs")
+            }
+        })
+    
+
+        for(i = 0; i < duration; i += occurences) {
             
-            con.query( // tab = tableau fait a partir des données qu'on reçoit
-            `INSERT INTO Course (courseDate, gradeId, courseStart, courseEnd, subjectId, teacherId, roomId)
-            VALUES ('${element.date.year}'-'${element.date.month}'-'${element.date.day}', 
-                    '${element.groups[0].id}',
-                    '${element.start.hours}':'${element.start.minutes}',
-                    '${element.end.hours}':'${element.end.minutes}',
-                    '${element.ue.id}',
-                    '${element.teacher.id}',
-                    '${element.place.room.id}')`, function (err, result) {
-            if (err) {throw err;}                 
-            })
+            //if(i >= 1){break}
+            
+            if ( ( (dateCourseDate.getDay()+i)%6 ) != 0 || ((dateCourseDate.getDay()+i)%6 ) != 6) {  
+                con.query(
+                    `INSERT INTO Course (courseDate, gradeId, courseStart, courseEnd, subjectId, teacherId, roomId)
+                    VALUES ('${courseDate}', 
+                            '${gradeId}',
+                            '${courseStart}',
+                            '${courseEnd}',
+                            '${subjectId}',
+                            '${teacherId}',
+                            '${roomId}')`, function (err, result) {
+                if (err) {throw err;}                 
+                })
+            }
+            else continue;
         }
-        else{throw Error("Entrée incorrecte, veuillez vérifier vos valeurs")}
+        
     });
     });
-});
     
 
    /*router
@@ -236,6 +313,14 @@ router
    });
    
    */
+
+router
+.use((req, res) => {
+        res.status(404);
+        res.json({
+            error: "Page not found"
+        });
+    });
    
 
 
