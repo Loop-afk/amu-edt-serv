@@ -35,11 +35,11 @@ module.exports = router;
 
 router
    .get("/", (req, res) => {
-       res.json("Hello world!!");
+       res.json("Connecté au serveur de AMU\'EDT");
    });
 
 router
-    .get("/test2", (req, res) => {
+    .get("/affichage/", (req, res) => {
         let from = req.query.from
         let to = req.query.to
         
@@ -69,12 +69,12 @@ router
                             "month":  element.month,
                             "year":  element.year
                           },
-                          "groups": [
+                          "groups": 
                             {
                               "id":  element.gradeId,
                               "value":  element.gradeName
                             }
-                          ],
+                          ,
                           "start": {
                             "hours":  element.hourStart,
                             "minutes":  element.minuteStart
@@ -204,7 +204,6 @@ router
 
         con.query(`SELECT * from Room where roomId = '${roomId}' `, function(error, result){
             if (err) {throw err;}
-            console.log(result + " AAAAAAAAAAAAAAAAAAAAA")
             if(result == 0){
                 errors += 1
                 return res.status(400).json({message: "Room doesn't exist"})
@@ -212,7 +211,6 @@ router
         })
     
 
-        console.log(errors + " errrrrr")
         if (errors == 0){
         for(i = 0; i < duration; i += occurences) {
             
