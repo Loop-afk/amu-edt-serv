@@ -116,6 +116,8 @@ router
 
    router
    .get("/nouveau/cours/", (req, res) => {
+    
+    let errors = 0;
     let subjectId = req.query.ueName
     let courseDate = req.query.date
     let courseStart = req.query.start
@@ -126,6 +128,22 @@ router
     let occurences = req.query.occurences
     let duration = req.query.duration
 
+    if (subjectId == undefined){errors += 1;
+        return res.status(400).json({message: "Please enter a subject ID"})}
+    if (courseDate == undefined){errors += 1;
+        return res.status(400).json({message: "Please enter a date"})}
+    if (courseStart == undefined){errors += 1;
+        return res.status(400).json({message: "Please enter a start hour"})}
+    if (courseEnd == undefined){errors += 1;
+        return res.status(400).json({message: "Please enter an end hour"})}
+    if (gradeId == undefined){errors += 1;
+        return res.status(400).json({message: "Please enter a grade ID"})}
+    if (teacherId == undefined){errors += 1;
+        return res.status(400).json({message: "Please enter a teacher ID"})}
+    if (roomId == undefined){errors += 1;
+        return res.status(400).json({message: "Please enter a room ID"})}
+    
+
     if (occurences == undefined) { occurences = 1 }
     else{occurences = parseInt(occurences)}
 
@@ -133,36 +151,45 @@ router
     else {duration = parseInt(duration)}
 
     dateCourseDate = new Date(courseDate)
+    
 
     con.connect(function(err) {
         if (err) {throw err;}
-        if(dateCourseDate < Date.now()){throw Error("Date antérieure, veuillez vérifier vos valeurs")}
+
+        if(dateCourseDate < Date.now()){
+            errors += 1;
+            return res.status(400).json({message: "Date can't be in the past"})
+        }
         
         con.query(`SELECT * from Grade where gradeId = '${gradeId}' `, function(error, result){
-            if (err) {
-                throw err;}
+            if (err) {throw err;}
             if(result == 0){
-                
-                return res.status(400).json({message: 'unauthorized'})
-                //res.json("Groupe inexistant, veuillez vérifier vos valeurs")
-                //throw Error("Groupe inexistant, veuillez vérifier vos valeurs")
+                errors += 1;
+                return res.status(400).json({message: "Group doesn't exist"})
             }
         })
-        
 
-        if(Date.parse(`01/01/2011 '${courseStart} `) > Date.parse(`01/01/2011 '${courseEnd}'`)){throw Error("Le cours ne peut pas finir avant d'avoir commencé, veuillez vérifier vos valeurs")}
+        if(Date.parse(`01/01/2011 ${courseStart} `) > Date.parse(`01/01/2011 ${courseEnd}`)){
+            errors += 1;
+            return res.status(400).json({message: "Course can't end before the start"})
+        }
     
         splitStart = courseStart.split(":")
         splitEnd = courseEnd.split(":")
 
-        if(parseInt(splitStart[0]) < 0 || parseInt(splitStart[0]) > 24 || parseInt(splitEnd[0]) < 0 || parseInt(splitEnd[0]) > 24){throw Error("Entrée incorrecte, veuillez vérifier vos valeurs")}
+        if(parseInt(splitStart[0]) < 0 || parseInt(splitStart[0]) >= 24 ||
+           parseInt(splitEnd[0]) < 0 || parseInt(splitEnd[0]) >= 24 ||
+           parseInt(splitStart[1]) < 0 || parseInt(splitStart[1]) >= 60 ||
+           parseInt(splitEnd[1]) < 0 || parseInt(splitEnd[1]) >= 60 ){
+            errors += 1;
+            return res.status(400).json({message: "Course hours must be between 00:00 and 23:59"})
+        }
 
         con.query(`SELECT * from Subject where subjectId = '${subjectId}' `, function(error, result){
-            if (err) {
-                throw err;}
+            if (err) {throw err;}
             if(result == 0){
-                res.json("UE inexistante, veuillez vérifier vos valeurs")
-                throw Error("UE inexistante, veuillez vérifier vos valeurs")
+                errors += 1;
+                return res.status(400).json({message: "UE doesn't exist"})
             }
         })
 
@@ -170,20 +197,23 @@ router
         con.query(`SELECT * from User where userId = '${teacherId}' `, function(error, result){
             if (err) {throw err;}
             if(result == 0){
-                res.json("Professeur inexistant, veuillez vérifier vos valeurs")
-                throw Error("Professeur inexistant, veuillez vérifier vos valeurs")
+                errors += 1
+                return res.status(400).json({message: "Professor doesn't exist"})
             }
         })
 
         con.query(`SELECT * from Room where roomId = '${roomId}' `, function(error, result){
             if (err) {throw err;}
+            console.log(result + " AAAAAAAAAAAAAAAAAAAAA")
             if(result == 0){
-                res.json("Salle inexistante, veuillez vérifier vos valeurs")
-                throw Error("Salle inexistante, veuillez vérifier vos valeurs")
+                errors += 1
+                return res.status(400).json({message: "Room doesn't exist"})
             }
         })
     
 
+        console.log(errors + " errrrrr")
+        if (errors == 0){
         for(i = 0; i < duration; i += occurences) {
             
             //if(i >= 1){break}
@@ -203,6 +233,8 @@ router
             }
             else continue;
         }
+        //res.json("Cours créé")
+    }
         
     });
     });
