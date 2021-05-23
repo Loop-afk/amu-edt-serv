@@ -273,6 +273,9 @@ router
         return res.status(400).json( {message: "Please enter a course ID"} );
     }
 
+    con.connect(function(err) {
+        if (err) {throw err;}
+
     con.query(`SELECT * from Course where courseId = '${courseId}' `, function(err, result){
         if (err) {throw err;}
         if(result == 0){
@@ -286,6 +289,7 @@ router
             })
         }
     })    
+    })
 });
    
 
