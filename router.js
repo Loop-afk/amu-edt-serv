@@ -2,7 +2,7 @@ const { SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS } = require("constants");
 const { listenerCount } = require("events");
 const express = require("express");
 const router = express.Router();
-const mysql = require('mysql2');
+const mysql = require("mysql2");
 const { cpuUsage } = require("process");
 
 const con = mysql.createConnection({
@@ -41,12 +41,12 @@ router
 
 router
     .get("/affichage/", (req, res) => {
-        let from = req.query.from
-        let to = req.query.to
+        let from = req.query.from;
+        let to = req.query.to;
         
-        if (from == undefined) { from = "2020-01-01" }
-        if (to == undefined) { to = "2022-12-31" }
-        console.log(from, to)
+        if (from == undefined) { from = "2020-01-01"; }
+        if (to == undefined) { to = "2022-12-31"; }
+        console.log(from, to);
         con.connect(function(err) {
         if (err) {throw err;}   
         //console.log("Connecté à la base de données MySQL!");
@@ -62,7 +62,7 @@ router
                     WHERE courseDate <= '${to}' AND courseDate >=  '${from}'`, function (err, result) {
             if (err) {throw err;} 
             //console.log(result);
-            let data = []
+            let data = [];
             result.forEach(element => data.push(
                         {
                           "date": {
@@ -92,7 +92,7 @@ router
                           },
                           "teacher": {
                             "id":  element.teacherId,
-                            "value":  element.teacherFirstName +' ' + element.teacherLastName
+                            "value":  element.teacherFirstName +" " + element.teacherLastName
                           },
                           "place": {
                             "room": {
@@ -118,64 +118,64 @@ router
    router
    .get("/nouveau/cours/", (req, res) => {
     
-    var errors = 0
-    var verifs = 0
-    let subjectId = req.query.ueName
-    let courseDate = req.query.date
-    let courseStart = req.query.start
-    let courseEnd = req.query.end
-    let gradeId = req.query.groups
-    let teacherId = req.query.teacher
-    let roomId = req.query.room
-    let occurences = req.query.occurences
-    let duration = req.query.duration
+    var errors = 0;
+    var verifs = 0;
+    let subjectId = req.query.ueName;
+    let courseDate = req.query.date;
+    let courseStart = req.query.start;
+    let courseEnd = req.query.end;
+    let gradeId = req.query.groups;
+    let teacherId = req.query.teacher;
+    let roomId = req.query.room;
+    let occurences = req.query.occurences;
+    let duration = req.query.duration;
 
     if (subjectId == undefined){errors += 1;
-        return res.status(400).json({message: "Please enter a subject ID"})}
+        return res.status(400).json({message: "Please enter a subject ID"});}
     if (courseDate == undefined){errors += 1;
-        return res.status(400).json({message: "Please enter a date"})}
+        return res.status(400).json({message: "Please enter a date"});}
     if (courseStart == undefined){errors += 1;
-        return res.status(400).json({message: "Please enter a start hour"})}
+        return res.status(400).json({message: "Please enter a start hour"});}
     if (courseEnd == undefined){errors += 1;
-        return res.status(400).json({message: "Please enter an end hour"})}
+        return res.status(400).json({message: "Please enter an end hour"});}
     if (gradeId == undefined){errors += 1;
-        return res.status(400).json({message: "Please enter a grade ID"})}
+        return res.status(400).json({message: "Please enter a grade ID"});}
     if (teacherId == undefined){errors += 1;
-        return res.status(400).json({message: "Please enter a teacher ID"})}
+        return res.status(400).json({message: "Please enter a teacher ID"});}
     if (roomId == undefined){errors += 1;
-        return res.status(400).json({message: "Please enter a room ID"})}
+        return res.status(400).json({message: "Please enter a room ID"});}
     
 
-    if (occurences == undefined) { occurences = 1 }
-    else{occurences = parseInt(occurences)}
+    if (occurences == undefined) { occurences = 1; }
+    else{occurences = parseInt(occurences);}
 
-    if (duration == undefined) { duration = 1 }
-    else {duration = parseInt(duration)}
+    if (duration == undefined) { duration = 1; }
+    else {duration = parseInt(duration);}
 
-    dateCourseDate = new Date(courseDate)
+    dateCourseDate = new Date(courseDate);
     
 
     con.connect(function(err) {
         if (err) {throw err;}
 
         if(dateCourseDate < Date.now()){
-            errors += 1
-            verifs += 1
-            return res.status(400).json({message: "Date can't be in the past"})
+            errors += 1;
+            verifs += 1;
+            return res.status(400).json({message: "Date can't be in the past"});
         }
-        else verifs += 1
+        else verifs += 1;
 
         
         if(Date.parse(`01/01/2011 ${courseStart} `) > Date.parse(`01/01/2011 ${courseEnd}`)){
             errors += 1;
             verifs += 1;
-            return res.status(400).json({message: "Course can't end before the start"})
+            return res.status(400).json({message: "Course can't end before the start"});
         }else verifs += 1;
     
        
 
-        splitStart = courseStart.split(":")
-        splitEnd = courseEnd.split(":")
+        splitStart = courseStart.split(":");
+        splitEnd = courseEnd.split(":");
 
         if(parseInt(splitStart[0]) < 0 || parseInt(splitStart[0]) >= 24 ||
            parseInt(splitEnd[0]) < 0 || parseInt(splitEnd[0]) >= 24 ||
@@ -183,7 +183,7 @@ router
            parseInt(splitEnd[1]) < 0 || parseInt(splitEnd[1]) >= 60 ){
             errors += 1;
             verifs += 1;
-            return res.status(400).json({message: "Course hours must be between 00:00 and 23:59"})
+            return res.status(400).json({message: "Course hours must be between 00:00 and 23:59"});
         }
         else verifs += 1;
 
@@ -196,8 +196,8 @@ router
             
             if(result == 0){
                 errors += 1;
-                console.log(errors + "aaaaaaa")
-                return res.status(400).send({message: "Group doesn't exist"})
+                console.log(errors + "aaaaaaa");
+                return res.status(400).send({message: "Group doesn't exist"});
                 
             }
        
@@ -207,8 +207,8 @@ router
                 
                 if(result1 == 0){
                     errors += 1;
-                    console.log(errors + "bbbbbbb")
-                    return res.status(400).send({message: "UE doesn't exist"})
+                    console.log(errors + "bbbbbbb");
+                    return res.status(400).send({message: "UE doesn't exist"});
             }
         
 
@@ -217,8 +217,8 @@ router
                     
                     if(result2 == 0){
                     errors += 1;
-                    console.log(errors + "ccccccc")
-                    return res.status(400).json({message: "Professor doesn't exist"})
+                    console.log(errors + "ccccccc");
+                    return res.status(400).json({message: "Professor doesn't exist"});
                 }
         
 
@@ -226,8 +226,8 @@ router
                         if (err) {throw err;}
                         if(result3 == 0){
                             errors += 1;
-                            console.log(errors + "ddddddd")
-                            return res.status(400).json({message: "Room doesn't exist"})
+                            console.log(errors + "ddddddd");
+                            return res.status(400).json({message: "Room doesn't exist"});
                         }
         
 
@@ -238,7 +238,7 @@ router
             for(i = 0; i < duration; i += occurences) {
                 courseDate.setDate(courseDate.getDate() + i);
             if ( ( (dateCourseDate.getDay()+i)%6 ) != 0 || ((dateCourseDate.getDay()+i)%6 ) != 6) {  
-                console.log("REQUETE EFFECTUEE")
+                console.log("REQUETE EFFECTUEE");
                 con.query(
                     `INSERT INTO Course (courseDate, gradeId, courseStart, courseEnd, subjectId, teacherId, roomId)
                     VALUES ('${courseDate}',    
@@ -249,17 +249,17 @@ router
                             '${teacherId}',
                             '${roomId}')`, function (err, result) {
                 if (err) {throw err;}                 
-                })
+                });
             }
             else continue;
         }
-        res.json("Course added succesfully")
+        res.json("Course added succesfully");
         }
     }
-})
-})
-})
-})
+});
+});
+});
+});
     });
 });
     
