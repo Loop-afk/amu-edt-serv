@@ -236,6 +236,7 @@ router
         if (verifs == 7){
         if (errors == 0){
             for(i = 0; i < duration; i += occurences) {
+                courseDate.setDate(courseDate.getDate() + i);
             if ( ( (dateCourseDate.getDay()+i)%6 ) != 0 || ((dateCourseDate.getDay()+i)%6 ) != 6) {  
                 console.log("REQUETE EFFECTUEE")
                 con.query(
