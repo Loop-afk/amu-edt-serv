@@ -262,7 +262,34 @@ router
 });
     
 
-   /*router
+router
+   .get("/supprimer/cours/", (req, res) => {
+    
+    let courseId = req.query.courseId;
+
+    if (courseId == undefined){ 
+        return res.status(400).json( {message: "Please enter a course ID"} );
+    }
+
+    con.query(`SELECT * from Course where courseId = '${courseId}' `, function(err, result){
+        if (err) {throw err;}
+        if(result == 0){
+            return res.status(400).send({message: "Course doesn't exist"});
+            
+        }
+        else {
+            con.query(
+                `DELETE FROM Course WHERE courseId = '${courseId}';`, function (err, result) { if (err) {throw err;} 
+                res.json("Course deleted succesfully");
+            })
+        }
+    })    
+});
+   
+
+
+
+/*router
    .get("/", (req, res) => {
         let from = req.query.from
         let fromSplit = from.split('-')
