@@ -229,19 +229,17 @@ router
                             console.log(errors + "ddddddd");
                             return res.status(400).json({message: "Room doesn't exist"});
                         }
-        
 
-        
-        
         if (verifs == 7){
         if (errors == 0){
             for(i = 0; i < duration; i += occurences) {
-                courseDate.setDate(courseDate.getDate() + i);
-            if ( ( (dateCourseDate.getDay()+i)%6 ) != 0 || ((dateCourseDate.getDay()+i)%6 ) != 6) {  
-                console.log("REQUETE EFFECTUEE");
+                finalDate = new Date(courseDate)
+                finalDate.setDate(finalDate.getDate() + i);
+            if ( ((finalDate.getDay() == 0) ||finalDate.getDay() == 6)) { continue;}
+            else {console.log("REQUETE EFFECTUEE");
                 con.query(
                     `INSERT INTO Course (courseDate, gradeId, courseStart, courseEnd, subjectId, teacherId, roomId)
-                    VALUES ('${courseDate}',    
+                    VALUES ('${finalDate.getFullYear()}' '-' '${(finalDate.getMonth() + 1)}' '-' '${finalDate.getDate()}',    
                             '${gradeId}',
                             '${courseStart}',
                             '${courseEnd}',
@@ -250,8 +248,8 @@ router
                             '${roomId}')`, function (err, result) {
                 if (err) {throw err;}                 
                 });
-            }
-            else continue;
+            
+             }
         }
         res.json("Course added succesfully");
         }
