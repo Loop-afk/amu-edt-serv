@@ -50,7 +50,8 @@ router
         con.connect(function(err) {
         if (err) {throw err;}   
         //console.log("Connecté à la base de données MySQL!");
-        con.query(`SELECT EXTRACT(YEAR FROM courseDate) AS year, EXTRACT(MONTH FROM courseDate) AS month, EXTRACT(DAY FROM courseDate) as day,
+        con.query(` SELECT courseId,
+                    EXTRACT(YEAR FROM courseDate) AS year, EXTRACT(MONTH FROM courseDate) AS month, EXTRACT(DAY FROM courseDate) as day,
                     C.gradeId, G.gradeName, 
                     EXTRACT(HOUR FROM courseStart) as hourStart, EXTRACT(MINUTE FROM courseStart) as minuteStart,
                     EXTRACT(HOUR FROM courseEnd) as hourEnd, EXTRACT(MINUTE FROM courseEnd) as minuteEnd,
@@ -103,7 +104,8 @@ router
                               "id":  element.campusId,
                               "value":  element.campusName
                             }
-                          }
+                          },
+                          "id": element.courseId
                         }
                         ));
                 res.json(data);
