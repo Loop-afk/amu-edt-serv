@@ -3,6 +3,7 @@ const { listenerCount } = require("events");
 const express = require("express");
 const router = express.Router();
 const mysql = require('mysql2');
+const { cpuUsage } = require("process");
 
 const con = mysql.createConnection({
     host: "77.145.66.7",
@@ -117,7 +118,8 @@ router
    router
    .get("/nouveau/cours/", (req, res) => {
     
-    let errors = 0;
+    var errors = 0
+    var verifs = 0
     let subjectId = req.query.ueName
     let courseDate = req.query.date
     let courseStart = req.query.start
@@ -157,23 +159,21 @@ router
         if (err) {throw err;}
 
         if(dateCourseDate < Date.now()){
-            errors += 1;
+            errors += 1
+            verifs += 1
             return res.status(400).json({message: "Date can't be in the past"})
         }
-        
-        con.query(`SELECT * from Grade where gradeId = '${gradeId}' `, function(error, result){
-            if (err) {throw err;}
-            if(result == 0){
-                errors += 1;
-                return res.status(400).json({message: "Group doesn't exist"})
-            }
-        })
+        else verifs += 1
 
+        
         if(Date.parse(`01/01/2011 ${courseStart} `) > Date.parse(`01/01/2011 ${courseEnd}`)){
             errors += 1;
+            verifs += 1;
             return res.status(400).json({message: "Course can't end before the start"})
-        }
+        }else verifs += 1;
     
+       
+
         splitStart = courseStart.split(":")
         splitEnd = courseEnd.split(":")
 
@@ -182,44 +182,65 @@ router
            parseInt(splitStart[1]) < 0 || parseInt(splitStart[1]) >= 60 ||
            parseInt(splitEnd[1]) < 0 || parseInt(splitEnd[1]) >= 60 ){
             errors += 1;
+            verifs += 1;
             return res.status(400).json({message: "Course hours must be between 00:00 and 23:59"})
         }
+        else verifs += 1;
 
-        con.query(`SELECT * from Subject where subjectId = '${subjectId}' `, function(error, result){
+       
+
+        
+        
+        con.query(`SELECT * from Grade where gradeId = '${gradeId}' `, verifs += 1 ,function(err, result){
             if (err) {throw err;}
+            
             if(result == 0){
                 errors += 1;
-                return res.status(400).json({message: "UE doesn't exist"})
+                console.log(errors + "aaaaaaa")
+                return res.status(400).send({message: "Group doesn't exist"})
+                
             }
-        })
+       
 
-
-        con.query(`SELECT * from User where userId = '${teacherId}' `, function(error, result){
-            if (err) {throw err;}
-            if(result == 0){
-                errors += 1
-                return res.status(400).json({message: "Professor doesn't exist"})
+            con.query(`SELECT * from Subject where subjectId = '${subjectId}' `, verifs += 1, function(error, result1){
+                if (err) {throw err;}
+                
+                if(result1 == 0){
+                    errors += 1;
+                    console.log(errors + "bbbbbbb")
+                    return res.status(400).send({message: "UE doesn't exist"})
             }
-        })
+        
 
-        con.query(`SELECT * from Room where roomId = '${roomId}' `, function(error, result){
-            if (err) {throw err;}
-            if(result == 0){
-                errors += 1
-                return res.status(400).json({message: "Room doesn't exist"})
-            }
-        })
-    
+                con.query(`SELECT * from User where userId = '${teacherId}' `, verifs += 1, function(error, result2){
+                    if (err) {throw err;}
+                    
+                    if(result2 == 0){
+                    errors += 1;
+                    console.log(errors + "ccccccc")
+                    return res.status(400).json({message: "Professor doesn't exist"})
+                }
+        
 
+                    con.query(`SELECT * from Room where roomId = '${roomId}' `, verifs += 1,  function(error, result3){
+                        if (err) {throw err;}
+                        if(result3 == 0){
+                            errors += 1;
+                            console.log(errors + "ddddddd")
+                            return res.status(400).json({message: "Room doesn't exist"})
+                        }
+        
+
+        
+        
+        if (verifs == 7){
         if (errors == 0){
-        for(i = 0; i < duration; i += occurences) {
-            
-            //if(i >= 1){break}
-            
+            for(i = 0; i < duration; i += occurences) {
             if ( ( (dateCourseDate.getDay()+i)%6 ) != 0 || ((dateCourseDate.getDay()+i)%6 ) != 6) {  
+                console.log("REQUETE EFFECTUEE")
                 con.query(
                     `INSERT INTO Course (courseDate, gradeId, courseStart, courseEnd, subjectId, teacherId, roomId)
-                    VALUES ('${courseDate}', 
+                    VALUES ('${courseDate}',    
                             '${gradeId}',
                             '${courseStart}',
                             '${courseEnd}',
@@ -231,11 +252,15 @@ router
             }
             else continue;
         }
-        //res.json("Cours créé")
+        res.json("Course added succesfully")
+        }
     }
-        
+})
+})
+})
+})
     });
-    });
+});
     
 
    /*router
